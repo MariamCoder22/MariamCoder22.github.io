@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mariam Khayr — Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c0a;
+    --surface: #0e1512;
+    --border: #1c2b22;
+    --green: #3ddc84;
+    --green-dim: #1f6e42;
+    --teal: #00c9a7;
+    --text: #e8f0eb;
+    --muted: #6b8c73;
+    --accent-orange: #f97316;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(61, 220, 132, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 220, 132, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(100px);
+    opacity: 0.12;
+  }
+  .orb-1 { width: 600px; height: 600px; background: var(--green); top: -200px; right: -200px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--teal); bottom: 100px; left: -100px; }
+
+  main { position: relative; z-index: 1; max-width: 940px; margin: 0 auto; padding: 0 32px; }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 48px;
+    background: rgba(8, 12, 10, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--green);
+    letter-spacing: -0.5px;
+    text-decoration: none;
+  }
+
+  nav ul { display: flex; gap: 32px; list-style: none; }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--green); }
+
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 80px;
+    position: relative;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+    width: fit-content;
+  }
+
+  .tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 8vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    color: var(--text);
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 .accent { color: var(--green); }
+
+  .hero-sub {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 520px;
+    margin-top: 28px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-sub strong { color: var(--text); font-weight: 400; }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+    animation: fadeUp 0.6s 0.3s ease both;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    display: inline-block;
+  }
+  .btn-primary { background: var(--green); color: var(--bg); border: 1px solid var(--green); }
+  .btn-primary:hover { background: transparent; color: var(--green); }
+  .btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--green-dim); color: var(--text); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px; left: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--green-dim);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--green);
+    animation: slide 1.5s ease infinite;
+  }
+  @keyframes slide { to { left: 200%; } }
+
+  section { padding: 100px 0; }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  /* ── ROS2 COPILOT CARD ── */
+  .building-card {
+    background: var(--surface);
+    border: 1px solid var(--green-dim);
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 48px;
+  }
+  .building-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), var(--teal), transparent);
+  }
+  .building-card::after {
+    content: 'ACTIVE BUILD';
+    position: absolute;
+    top: 20px; right: 24px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    padding: 4px 10px;
+  }
+
+  .building-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+  }
+
+  .building-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 3.5vw, 36px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.05;
+  }
+
+  .building-subtitle {
+    font-size: 13px;
+    color: var(--accent-orange);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .building-desc {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--muted);
+    max-width: 620px;
+    margin-bottom: 32px;
+  }
+  .building-desc strong { color: var(--text); font-weight: 400; }
+
+  .building-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 32px;
+  }
+
+  .b-metric {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .b-metric-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  .b-metric-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── PROJECT CARDS ── */
+  .projects-grid { display: grid; gap: 2px; margin-top: 48px; }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 0;
+    background: var(--green);
+    transition: height 0.3s ease;
+  }
+  .project-card:hover::before { height: 100%; }
+  .project-card:hover { border-color: var(--green-dim); }
+
+  .project-num { font-size: 11px; color: var(--green-dim); letter-spacing: 0.1em; margin-bottom: 14px; }
+
+  .project-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .project-desc { font-size: 12px; line-height: 1.85; color: var(--muted); max-width: 600px; }
+
+  .metrics-row { display: flex; gap: 2px; margin-top: 20px; flex-wrap: wrap; }
+
+  .metric-chip {
+    background: rgba(61, 220, 132, 0.05);
+    border: 1px solid var(--green-dim);
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--green);
+    flex: 1;
+    min-width: 130px;
+  }
+  .metric-chip .m-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    display: block;
+    letter-spacing: -0.5px;
+  }
+  .metric-chip .m-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+
+  .tech-tag {
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .project-card:hover .tech-tag { border-color: var(--green-dim); color: var(--green); }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--green);
+    text-decoration: none;
+    margin-top: 18px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .project-card:hover .project-link { opacity: 1; }
+  .project-link::after { content: '→'; transition: transform 0.2s; }
+  .project-link:hover::after { transform: translateX(4px); }
+
+  /* ── SKILLS ── */
+  .skills-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2px;
+    margin-top: 40px;
+  }
+  .skill-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .skill-item:hover { border-color: var(--green-dim); color: var(--text); background: rgba(61, 220, 132, 0.04); }
+
+  /* ── ABOUT ── */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+  .about-text { font-size: 13px; line-height: 2; color: var(--muted); }
+  .about-text p + p { margin-top: 20px; }
+  .about-text strong { color: var(--text); font-weight: 400; }
+
+  .stats { display: grid; gap: 2px; }
+
+  .stat { background: var(--surface); border: 1px solid var(--border); padding: 24px; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--green); letter-spacing: -1px; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ── CONTACT ── */
+  .contact-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .contact-bar h2 { margin-bottom: 0; }
+  .contact-links { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  footer {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    nav { padding: 16px 24px; }
+    nav ul { gap: 16px; }
+    main { padding: 0 20px; }
+    .about-grid { grid-template-columns: 1fr; }
+    .contact-bar { flex-direction: column; align-items: flex-start; }
+    h1 { letter-spacing: -2px; }
+    .building-metrics { grid-template-columns: 1fr; }
+    .building-card { padding: 28px; }
+    .building-card::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+  <a href="#" class="nav-logo">MK</a>
+  <ul>
+    <li><a href="#building">Building</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="tag">Applying to Z Fellows 2026</div>
+    <h1>Mariam<br><span class="accent">Khayr.</span></h1>
+    <p class="hero-sub">
+      Computer scientist building <strong>AI dev tools for robotics engineers</strong> —
+      and using ML to tackle wildlife conservation, climate prediction, and waste. Based in <strong>Minnesota</strong>.
+    </p>
+    <div class="hero-cta">
+      <a href="#building" class="btn btn-primary">What I'm Building →</a>
+      <a href="https://github.com/MariamCoder22" target="_blank" class="btn btn-outline">GitHub</a>
+      <a href="https://www.linkedin.com/in/mariam-khayr-06027a189/" target="_blank" class="btn btn-outline">LinkedIn</a>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      Scroll to explore
+    </div>
+  </section>
+
+  <!-- CURRENTLY BUILDING -->
+  <section id="building">
+    <div class="section-label">Currently Building</div>
+    <h2>The Z Fellows project.</h2>
+
+    <div class="building-card fade-in">
+      <div class="building-eyebrow">Z Fellows 2026 Proposal</div>
+      <div class="building-title">ROS2 Copilot</div>
+      <div class="building-subtitle">Cursor, but for robotics engineers.</div>
+      <div class="building-desc">
+        ROS2 is the Robot Operating System powering <strong>Boston Dynamics, autonomous vehicles, and industrial automation</strong> —
+        and it's notoriously painful to work with. Engineers lose days debugging cryptic error logs,
+        fighting dependency conflicts, and hunting through fragmented forums for one-line answers buried in 2021 threads.
+        <br><br>
+        <strong>ROS2 Copilot reads your error logs, understands your ROS2 distribution and workspace context,
+        and tells you exactly what broke and how to fix it in under 10 seconds.</strong> It also generates
+        complete, idiomatic node boilerplate from plain English — so engineers spend their time
+        building robots, not fighting tooling.
+        <br><br>
+        I have been that engineer. This tool is built from real pain, not a gap analysis.
+      </div>
+      <div class="building-metrics">
+        <div class="b-metric">
+          <div class="b-metric-val">&lt;10s</div>
+          <div class="b-metric-label">Error diagnosis target</div>
+        </div>
+        <div class="b-metric">
+          <div class="b-metric-val">All distros</div>
+          <div class="b-metric-label">ROS2 Humble → Jazzy</div>
+        </div>
+        <div class="b-metric">
+          <div class="b-metric-val">Context-aware</div>
+          <div class="b-metric-label">Workspace + env aware</div>
+        </div>
+      </div>
+      <div class="project-tags" style="margin-top: 28px;">
+        <span class="tech-tag">Python</span>
+        <span class="tech-tag">ROS2</span>
+        <span class="tech-tag">LLM</span>
+        <span class="tech-tag">Dev Tools</span>
+        <span class="tech-tag">Robotics</span>
+        <span class="tech-tag">Context-aware AI</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAST PROJECTS -->
+  <section id="projects">
+    <div class="section-label">Past Work</div>
+    <h2>Projects shipped.<br>Results measured.</h2>
+
+    <div class="projects-grid">
+
+      <div class="project-card fade-in">
+        <div class="project-num">01</div>
+        <div class="project-title">Endangered Species Tracker</div>
+        <div class="project-desc">
+          Real-time AI system for wildlife protection using YOLO + ResNet for computer vision
+          and TensorFlow + librosa for audio species detection. Includes a crowdsourced citizen
+          science platform and geospatial poaching hotspot prediction via Google Earth Engine.
+        </div>
+        <div class="metrics-row">
+          <div class="metric-chip">
+            <span class="m-num">~8K</span>
+            <span class="m-label">Labeled wildlife images</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">~75%</span>
+            <span class="m-label">Detection accuracy</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">GEE</span>
+            <span class="m-label">Geospatial clustering</span>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">YOLO</span>
+          <span class="tech-tag">ResNet</span>
+          <span class="tech-tag">TensorFlow</span>
+          <span class="tech-tag">Google Earth Engine</span>
+          <span class="tech-tag">Flask</span>
+          <span class="tech-tag">AWS</span>
+        </div>
+        <a href="https://github.com/MariamCoder22/endangered-species-tracker" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+
+      <div class="project-card fade-in">
+        <div class="project-num">02</div>
+        <div class="project-title">Hyperlocal Climate Disaster Prediction</div>
+        <div class="project-desc">
+          ML pipeline for predicting climate-related disasters at street-level resolution —
+          going beyond regional forecasts using Sentinel-2 satellite imagery fused with
+          social media data streams for multimodal early-stage risk assessment.
+        </div>
+        <div class="metrics-row">
+          <div class="metric-chip">
+            <span class="m-num">~70%</span>
+            <span class="m-label">Risk pattern consistency</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">2-modal</span>
+            <span class="m-label">Satellite + NLP inputs</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">Street-level</span>
+            <span class="m-label">Prediction resolution</span>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Sentinel-2</span>
+          <span class="tech-tag">NetCDF4</span>
+          <span class="tech-tag">xarray</span>
+          <span class="tech-tag">QGIS</span>
+          <span class="tech-tag">NLP</span>
+        </div>
+        <a href="https://github.com/MariamCoder22/hyperlocal-climate-disaster-prediction" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+
+      <div class="project-card fade-in">
+        <div class="project-num">03</div>
+        <div class="project-title">AI Plastic Waste Audit + Gamified Recycling</div>
+        <div class="project-desc">
+          CV-powered waste auditing system with blockchain audit trails for transparency,
+          route optimization that cuts estimated travel distance by ~25%, and game mechanics
+          layered on top to sustain community recycling behavior — targeting the gap
+          between knowing and doing.
+        </div>
+        <div class="metrics-row">
+          <div class="metric-chip">
+            <span class="m-num">~70%</span>
+            <span class="m-label">Waste classification accuracy</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">~25%</span>
+            <span class="m-label">Route distance reduction</span>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Computer Vision</span>
+          <span class="tech-tag">Blockchain</span>
+          <span class="tech-tag">Optimization</span>
+          <span class="tech-tag">Gamification</span>
+        </div>
+        <a href="https://github.com/MariamCoder22/plasticwaste-audit-recycling" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+
+      <div class="project-card fade-in">
+        <div class="project-num">04</div>
+        <div class="project-title">Reforestation Digital Twin</div>
+        <div class="project-desc">
+          RL + GAN system that simulates large-scale seed planting strategies across climate
+          scenarios before committing to field trials. Digital twin for conservationists
+          to test and optimize reforestation plans — faster and cheaper than ground truth alone.
+        </div>
+        <div class="metrics-row">
+          <div class="metric-chip">
+            <span class="m-num">15+</span>
+            <span class="m-label">Climate scenarios simulated</span>
+          </div>
+          <div class="metric-chip">
+            <span class="m-num">RL agents</span>
+            <span class="m-label">Stable policy improvement</span>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Reinforcement Learning</span>
+          <span class="tech-tag">GANs</span>
+          <span class="tech-tag">TensorFlow</span>
+          <span class="tech-tag">Simulation</span>
+        </div>
+        <a href="https://github.com/MariamCoder22/reforestation-twin" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-label">Toolkit</div>
+    <h2>What I build with.</h2>
+    <div class="skills-block">
+      <div class="skill-item">Python</div>
+      <div class="skill-item">JavaScript / TypeScript</div>
+      <div class="skill-item">C / C++</div>
+      <div class="skill-item">R</div>
+      <div class="skill-item">ROS2</div>
+      <div class="skill-item">TensorFlow</div>
+      <div class="skill-item">OpenCV / YOLO</div>
+      <div class="skill-item">Pandas / NumPy</div>
+      <div class="skill-item">Flask</div>
+      <div class="skill-item">Google Earth Engine</div>
+      <div class="skill-item">QGIS</div>
+      <div class="skill-item">AWS</div>
+      <div class="skill-item">SQL / MongoDB</div>
+      <div class="skill-item">Reinforcement Learning</div>
+      <div class="skill-item">GANs</div>
+      <div class="skill-item">Geospatial AI</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-label">About</div>
+    <div class="about-grid fade-in">
+      <div>
+        <h2>Building tech<br>that fights back.</h2>
+        <div class="about-text" style="margin-top: 28px;">
+          <p>
+            I'm a <strong>computer scientist and futurist</strong> drawn to problems at the
+            intersection of AI and the physical world — robotics, wildlife, climate, ecosystems.
+          </p>
+          <p>
+            My work spans machine learning, geospatial analysis, robotics tooling, and full-stack
+            development. I build things that are not just technically sound but aimed at
+            <strong>real-world outcomes</strong>.
+          </p>
+          <p>
+            ROS2 Copilot is the tool I wish existed when I was losing weekends
+            to opaque error messages. The best dev tools come from engineers who've
+            <strong>felt the pain firsthand</strong>.
+          </p>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">55+</div>
+          <div class="stat-label">GitHub Repositories</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Shipped AI / ML Projects</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">MN</div>
+          <div class="stat-label">Based in Minnesota</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-bar fade-in">
+      <div>
+        <h2>Let's build<br>something.</h2>
+      </div>
+      <div class="contact-links">
+        <a href="https://github.com/MariamCoder22" target="_blank" class="btn btn-outline">GitHub</a>
+        <a href="https://www.linkedin.com/in/mariam-khayr-06027a189/" target="_blank" class="btn btn-outline">LinkedIn</a>
+        <a href="mailto:mariam@example.com" class="btn btn-primary">Email Me</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Mariam Khayr</span>
+    <span>Minnesota · Robotics · AI · Climate Tech</span>
+  </footer>
+
+</main>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  document.querySelectorAll('.project-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.06}s`;
+    card.classList.add('fade-in');
+    observer.observe(card);
+  });
+</script>
+</body>
+</html>
